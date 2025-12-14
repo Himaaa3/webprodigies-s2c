@@ -1,3 +1,4 @@
+'use client'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,13 +15,26 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { UseFormRegister, FieldErrors } from "react-hook-form"
+import Google from "./buttons/oauth/google"
+
+interface LoginFormProps {
+  className?: string
+  register: UseFormRegister<{ email: string; password: string }>
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>
+  errors: FieldErrors<{ email: string; password: string }>
+  isLoading?: boolean
+}
 
 export function LoginForm({
   className,
-  ...props
-}: React.ComponentProps<"div">) {
+  register,
+  onSubmit,
+  errors,
+  isLoading,
+}: LoginFormProps) {
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)} suppressHydrationWarning>
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -29,7 +43,8 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={onSubmit}>
+          
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -37,8 +52,12 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  {...register("email")}
                   required
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
+                )}
               </Field>
               <Field>
                 <div className="flex items-center">
@@ -50,13 +69,23 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  {...register("password")}
+                  required 
+                />
+                {errors.password && (
+                  <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
+                )}
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
-                  Login with Google
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
+                
+                  <Google />
+                
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <a href="#">Sign up</a>
                 </FieldDescription>
